@@ -1,0 +1,25 @@
+---
+title: "West Side Aphid Whitefly 2022"
+output: html_document
+date: '2022-12-16'
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+
+WSAphWf2022 <-read.csv ("C:/Users/bachhami/Box Sync/UCDavis_Buddhi/spraydroplet_analysis/droplet_size_2/westside_aphid_wf2022/West_Side_Aphid_Wf_data2022.av.csv", sep = ",", header = T) 
+
+head (WSAphWf2022)
+
+```
+```{r}
+WSAphWf2022$DAT<-as.factor(WSAphWf2022$DAT) 
+WSAphWf2022$TRT<-as.factor(WSAphWf2022$TRT)
+WSAphWf2022$Product<-as.factor(WSAphWf2022$Product)
+WSAphWf2022$Block<-as.factor(WSAphWf2022$Block)
+```
+
