@@ -23,3 +23,75 @@ WSAphWf2022$Product<-as.factor(WSAphWf2022$Product)
 WSAphWf2022$Block<-as.factor(WSAphWf2022$Block)
 ```
 
+```{r}
+WSAphWf2022%>%
+  mutate(
+    type = case_when (
+      DAT == 0 ~ "0",
+      DAT == 2 ~ "2",
+      DAT == 7 ~ "7",
+      DAT == 13 ~ "13",
+      DAT == 2-DAT-2 ~ "2DAT2",
+      DAT == 7-DAT-2 ~ "7DAT2",
+      DAT == 14-DAT-2 ~ "14DAT2",
+      DAT == 20-DAT-2 ~ "20DAT2"
+  ))
+
+head(WSAphWf2022)
+```
+
+
+
+
+```{r}
+library(plyr)
+#summary whitefly
+summaryWf<- ddply(WSAphWf2022, c("DAT","Product","TRT"), summarise,
+                  N2    = sum(!is.na(Total_WFnymph_per_leaf)),
+                  WfNym.Mean = mean(Total_WFnymph_per_leaf, na.rm=TRUE),
+                  WfNymSD   = sd(Total_WFnymph_per_leaf, na.rm=TRUE),
+                  WfNySE   = WfNymSD / sqrt(N2),
+                  WfNy.Sum = sum(Total_WFnymph_per_leaf, na.rm=TRUE),
+                  
+                  N3    = sum(!is.na(WF_adult_per_leaf)),
+                  WfAd.Mean = mean(WF_adult_per_leaf, na.rm=TRUE),
+                  WfAdSD   = sd(WF_adult_per_leaf, na.rm=TRUE),
+                  WfAdSE   = WfAdSD / sqrt(N3),
+                  WfAd.Sum = sum(WF_adult_per_leaf, na.rm=TRUE))
+
+summaryWf
+
+
+## Whitefly after treatment
+SummedWF<- ddply(WSAphWf2022[ which(WSAphWf2022$DAT>'0'), ], c("Product","TRT","Block"), summarise,
+                 WfNym.Sum = sum(Total_WFnymph_per_leaf, na.rm=TRUE),
+                 WfAd.Sum = sum(WF_adult_per_leaf, na.rm=TRUE))
+
+
+SummedWF
+
+SummedWF.Avg<- ddply(SummedWF, c("Product","TRT"), summarise,
+                     N = sum(!is.na(WfNym.Sum)),
+                     WfNym.SumAvg = mean(WfNym.Sum, na.rm=TRUE),
+                     WfNym.SumSD   = sd(WfNym.Sum, na.rm=TRUE),
+                     WfNym.SumSE   = WfNym.SumSD / sqrt(N),
+                     WfAd.SumAvg = mean(WfAd.Sum, na.rm=TRUE),
+                     WfAd.SumSD   = sd(WfAd.Sum, na.rm=TRUE),
+                     WfAd.SumSE   = WfAd.SumSD / sqrt(N) ) 
+
+SummedWF.Avg
+```
+
+```{r}
+### Whitefly summary graphs
+#### ALL dates
+
+WFNymChart <- ggplot(summaryWf,aes(fill=DAT,y=WfNym.Mean, x=Product))+
+  geom_bar(position="stack",stat="identity")+
+  theme(axis.text.x=element_text(angle=90)); WFNymChart
+
+WFAdChart<-ggplot(summaryWf,aes(fill=DAT,y=WfAd.Mean, x=Product))+
+  geom_bar(position="stack",stat="identity")+
+  theme(axis.text.x=element_text(angle=90)); WFAdChart
+```
+
