@@ -97,10 +97,7 @@ WFNymChart <- summaryWf %>%
   theme_bw()+
   theme(axis.text.x=element_text(angle=90)) 
   
-
 WFNymChart
-
-
 ```
 
 ```{r}
@@ -159,4 +156,68 @@ TAphidhart <- summary_T_aphid %>%
 
 TAphidhart
 ```
+
+```{r}
+# For DPR 
+# Selecting Sefina, pqz, sivanto, assail, untreated
+
+#WF nymphs
+
+WFNymChart_dpr <- summaryWf %>%
+  filter (TRT %in% c("1", "2", "4", "6", "11", "12", "14", "16", "17"))%>%
+  mutate (DAT = fct_relevel(DAT, "20-DAT-2","14-DAT-2", "7-DAT-2","2-DAT-2","13","7","2")) %>%
+  ggplot(aes(fill=DAT,y=WfNym.Mean, x=Product))+
+  geom_bar(position="stack",stat="identity")+ 
+  scale_fill_manual("DAT", values = c("20-DAT-2" = "black","14-DAT-2" = "orange", "7-DAT-2" = "blue","2-DAT-2" = "lightgreen","13" = "red","7" = "purple","2" = "grey")) + 
+  theme_bw()+
+  theme(axis.text.x=element_text(angle=90)) 
+  
+WFNymChart_dpr
+```
+
+```{r}
+# For DPR 
+# Selecting Sefina, pqz, sivanto, assail, untreated
+# whitefly adult
+ 
+WFAdChart_dpr <- summaryWf %>%
+  filter (TRT %in% c("1", "2", "4", "6", "11", "12", "14", "16", "17"))%>%
+  mutate (DAT = fct_relevel(DAT, "20-DAT-2","14-DAT-2", "7-DAT-2","2-DAT-2","13","7","2")) %>%
+  ggplot(aes(fill=DAT,y=WfAd.Mean, x=Product))+
+  geom_bar(position="stack",stat="identity")+ 
+  geom_bar(position="stack",stat="identity",color="#333333",size=.1)+
+  scale_fill_brewer(palette = "Spectral")+
+  theme_classic()+
+  theme(axis.text.x=element_text(angle=50, hjust=0.99))+
+  theme(text=element_text(size=15))+labs(fill = "DAT")+
+  theme(axis.text.x=element_text(color="#000000", size=12),
+        axis.text.y=element_text(color="#000000", size=12))+
+  ylab("Avg. whitefly nymphs (per leaf)")+
+  xlab("")
+
+WFAdChart_dpr 
+```
+
+
+```{r, include=TRUE,echo=TRUE,warning=FALSE, fig.dim = c(8, 6)}
+# For DPR 
+# Selecting Sefina, pqz, sivanto, assail, untreated 
+
+TAphidhart_dpr <- summary_T_aphid %>%
+  select ("DAT", "Product", "TAphid.Mean", "TRT")%>%
+  filter (TRT %in% c("1", "2", "4", "6", "11", "12", "14", "16", "17"))%>%
+  mutate (DAT = fct_relevel(DAT, "20-DAT-2","14-DAT-2", "7-DAT-2","2-DAT-2","13","7","2")) %>%
+  ggplot(aes(fill=DAT,y=TAphid.Mean, x=Product))+
+  geom_bar(position="stack",stat="identity",color="#333333",size=.1)+
+    scale_fill_brewer(palette = "Spectral")+
+  theme_classic()+
+  theme(axis.text.x=element_text(angle=50, hjust=0.99))+
+  theme(text=element_text(size=15))+labs(fill = "DAT")+
+  theme(axis.text.x=element_text(color="#000000", size=12),
+        axis.text.y=element_text(color="#000000", size=12))+
+  ylab("Avg. Aphids (per leaf)")+
+  xlab("")
+TAphidhart_dpr
+```
+
 
