@@ -10,8 +10,12 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r}
 library(tidyverse)
+library(readxl)
 
-WSAphWf2022.1 <-read.csv ("C:/Users/bachhami/Box Sync/UCDavis_Buddhi/spraydroplet_analysis/droplet_size_2/westside_aphid_wf2022/West_Side_Aphid_Wf_data2022.av.csv", sep = ",", header = T) 
+WSAphWf2022.1 <-read_excel ("C:/Users/bachhami/Box Sync/UCDavis_Buddhi/spraydroplet_analysis/droplet_size_2/westside_aphid_wf2022/West_Side_Aphid_Wf_data2022.forR.xlsx") 
+
+library(dplyr)
+WSAphWf2022.1 <- mutate(WSAphWf2022.1, Date = as.Date(Date, origin = "15/8/2022"))
 
 head (WSAphWf2022.1)
 
