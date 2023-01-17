@@ -9,6 +9,11 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ```{r}
+getwd()
+```
+
+
+```{r}
 library(tidyverse)
 library(readxl)
 
@@ -18,6 +23,7 @@ library(dplyr)
 WSAphWf2022.1 <- mutate(WSAphWf2022.1, Date = as.Date(Date, origin = "15/8/2022"))
 
 head (WSAphWf2022.1)
+
 
 WSAphWf2022 <- WSAphWf2022.1 %>%
   filter (DAT %in% c("20-DAT-2","14-DAT-2", "7-DAT-2","2-DAT-2","13","7","2"))
@@ -34,26 +40,26 @@ WSAphWf2022$Block<-as.factor(WSAphWf2022$Block)
 ```{r}
 library(dplyr)
 
-WSAphWf2022 %>%
-  mutate(DAT2 = case_when(
+WSAphWf2022.2<-WSAphWf2022 %>%
+  mutate(DAT = case_when(
     DAT == '0' ~ '0',
-    DAT =='2' ~ '2', 
-    DAT == '7' ~ '7',
-    DAT == '13' ~ '13',
-    DAT == '2-DAT-2' ~ '2DAT2',
-    DAT == '7-DAT-2' ~ '7DAT2',
-    DAT == '14-DAT-2' ~ '14DAT2',
-    DAT == '20-DAT-2' ~ '20DAT2'))
+    DAT =='2' ~ '2-DAT1', 
+    DAT == '7' ~ '7-DAT1',
+    DAT == '13' ~ '13-DAT1',
+    DAT == '2-DAT-2' ~ '2-DAT2',
+    DAT == '7-DAT-2' ~ '7-DAT2',
+    DAT == '14-DAT-2' ~ '14-DAT2',
+    DAT == '20-DAT-2' ~ '20-DAT2'))
 
 
-head (WSAphWf2022)
-tail (WSAphWf2022)
+head (WSAphWf2022.2)
+tail (WSAphWf2022.2)
 ```
 
 ```{r}
 library(plyr)
 #summary whitefly
-summaryWf<- ddply(WSAphWf2022, c("DAT","Product","TRT"), summarise,
+summaryWf<- ddply(WSAphWf2022.2, c("DAT","Product","TRT"), summarise,
                   N2    = sum(!is.na(Total_WFnymph_per_leaf)),
                   WfNym.Mean = mean(Total_WFnymph_per_leaf, na.rm=TRUE),
                   WfNymSD   = sd(Total_WFnymph_per_leaf, na.rm=TRUE),
@@ -70,7 +76,7 @@ summaryWf
 
 
 ## Whitefly after treatment
-SummedWF<- ddply(WSAphWf2022, c("Product","TRT","Block"), summarise,
+SummedWF<- ddply(WSAphWf2022.2, c("Product","TRT","Block"), summarise,
                  WfNym.Sum = sum(Total_WFnymph_per_leaf, na.rm=TRUE),
                  WfAd.Sum = sum(WF_adult_per_leaf, na.rm=TRUE))
 
@@ -94,10 +100,9 @@ SummedWF.Avg
 #### ALL dates
 
 WFNymChart <- summaryWf %>%
-  mutate (DAT = fct_relevel(DAT, "20-DAT-2","14-DAT-2", "7-DAT-2","2-DAT-2","13","7","2")) %>%
+  mutate (DAT = fct_relevel(DAT, "20-DAT2","14-DAT2", "7-DAT2","2-DAT2","13-DAT1","7-DAT1","2-DAT1")) %>%
   ggplot(aes(fill=DAT,y=WfNym.Mean, x=Product))+
   geom_bar(position="stack",stat="identity")+ 
-  scale_fill_manual("DAT", values = c("20-DAT-2" = "black","14-DAT-2" = "orange", "7-DAT-2" = "blue","2-DAT-2" = "lightgreen","13" = "red","7" = "purple","2" = "grey")) + 
   theme_bw()+
   theme(axis.text.x=element_text(angle=90)) 
   
@@ -105,11 +110,12 @@ WFNymChart
 ```
 
 ```{r}
+#Whitefly adult summary (field count)
 WFAdChart <- summaryWf %>%
-  mutate (DAT = fct_relevel(DAT, "20-DAT-2","14-DAT-2", "7-DAT-2","2-DAT-2","13","7","2")) %>%
+  mutate (DAT = fct_relevel(DAT, "20-DAT2","14-DAT2", "7-DAT2","2-DAT2","13-DAT1","7-DAT1","2-DAT1")) %>%
   ggplot(aes(fill=DAT,y=WfAd.Mean, x=Product))+
   geom_bar(position="stack",stat="identity")+ 
-  scale_fill_manual("DAT", values = c("20-DAT-2" = "black","14-DAT-2" = "orange", "7-DAT-2" = "blue","2-DAT-2" = "lightgreen","13" = "red","7" = "purple","2" = "grey")) + 
+  scale_fill_manual("DAT", values = c("20-DAT2" = "black","14-DAT2" = "orange", "7-DAT2" = "blue","2-DAT2" = "lightgreen","13-DAT1" = "red","7-DAT1" = "purple","2-DAT1" = "grey")) + 
   theme_bw()+
   theme(axis.text.x=element_text(angle=90)) 
 
@@ -119,7 +125,7 @@ WFAdChart
 ```{r}
 library(plyr)
 #summary aphid
-summary_T_aphid<- ddply(WSAphWf2022, c("DAT","Product","TRT"), summarise,
+summary_T_aphid<- ddply(WSAphWf2022.2, c("DAT","Product","TRT"), summarise,
                   N4    = sum(!is.na(Total_Aphid_pre_leaf)),
                   TAphid.Mean = mean(Total_Aphid_pre_leaf, na.rm=TRUE),
                   TAphidSD   = sd(Total_Aphid_pre_leaf, na.rm=TRUE),
@@ -131,12 +137,14 @@ summary_T_aphid
 
 
 ## Total Aphid after treatment
-SummedTAphid<- ddply(WSAphWf2022, c("Product","TRT","Block"), summarise,
+SummedTAphid<- ddply(WSAphWf2022.2, c("Product","TRT","Block"), summarise,
                  TAphid.Sum = sum(Total_Aphid_pre_leaf, na.rm=TRUE)
                  )
 
 
 SummedTAphid
+
+#Adult summary without blocks
 
 SummedTAphid.Avg<- ddply(SummedTAphid, c("Product","TRT"), summarise,
                      N = sum(!is.na(TAphid.Sum)),
@@ -151,10 +159,9 @@ SummedTAphid.Avg
 ```{r}
 #Total Aphid chart
 TAphidhart <- summary_T_aphid %>%
-  mutate (DAT = fct_relevel(DAT, "20-DAT-2","14-DAT-2", "7-DAT-2","2-DAT-2","13","7","2")) %>%
+  mutate (DAT = fct_relevel(DAT, "20-DAT2","14-DAT2", "7-DAT2","2-DAT2","13-DAT1","7-DAT1","2-DAT1")) %>%
   ggplot(aes(fill=DAT,y=TAphid.Mean, x=Product))+
   geom_bar(position="stack",stat="identity")+ 
-  scale_fill_manual("DAT", values = c("20-DAT-2" = "black","14-DAT-2" = "orange", "7-DAT-2" = "blue","2-DAT-2" = "lightgreen","13" = "red","7" = "purple","2" = "grey")) + 
   theme_bw()+
   theme(axis.text.x=element_text(angle=90)) 
 
@@ -165,63 +172,143 @@ TAphidhart
 # For DPR 
 # Selecting Sefina, pqz, sivanto, assail, untreated
 
-#WF nymphs
-
-WFNymChart_dpr <- summaryWf %>%
-  filter (TRT %in% c("1", "2", "4", "6", "11", "12", "14", "16", "17"))%>%
-  mutate (DAT = fct_relevel(DAT, "20-DAT-2","14-DAT-2", "7-DAT-2","2-DAT-2","13","7","2")) %>%
-  ggplot(aes(fill=DAT,y=WfNym.Mean, x=Product))+
-  geom_bar(position="stack",stat="identity")+ 
-  scale_fill_manual("DAT", values = c("20-DAT-2" = "black","14-DAT-2" = "orange", "7-DAT-2" = "blue","2-DAT-2" = "lightgreen","13" = "red","7" = "purple","2" = "grey")) + 
-  theme_bw()+
-  theme(axis.text.x=element_text(angle=90)) 
-  
-WFNymChart_dpr
+dpr_data2022 <- WSAphWf2022.2 %>%
+  filter (TrialSet %in%c("Untreated", "DPR"))
+dpr_data2022
 ```
 
 ```{r}
-# For DPR 
-# Selecting Sefina, pqz, sivanto, assail, untreated
-# whitefly adult
- 
-WFAdChart_dpr <- summaryWf %>%
-  filter (TRT %in% c("1", "2", "4", "6", "11", "12", "14", "16", "17"))%>%
-  mutate (DAT = fct_relevel(DAT, "20-DAT-2","14-DAT-2", "7-DAT-2","2-DAT-2","13","7","2")) %>%
-  ggplot(aes(fill=DAT,y=WfAd.Mean, x=Product))+
-  geom_bar(position="stack",stat="identity")+ 
+#summary whitefly
+summaryWf_dpr<- ddply(dpr_data2022, c("DAT","Product","TRT", "DPR_Label"), summarise,
+                  N2    = sum(!is.na(Total_WFnymph_per_leaf)),
+                  WfNym.Mean = mean(Total_WFnymph_per_leaf, na.rm=TRUE),
+                  WfNymSD   = sd(Total_WFnymph_per_leaf, na.rm=TRUE),
+                  WfNySE   = WfNymSD / sqrt(N2),
+                  WfNy.Sum = sum(Total_WFnymph_per_leaf, na.rm=TRUE),
+                  
+                  N3    = sum(!is.na(WF_adult_per_leaf)),
+                  WfAd.Mean = mean(WF_adult_per_leaf, na.rm=TRUE),
+                  WfAdSD   = sd(WF_adult_per_leaf, na.rm=TRUE),
+                  WfAdSE   = WfAdSD / sqrt(N3),
+                  WfAd.Sum = sum(WF_adult_per_leaf, na.rm=TRUE))
+
+summaryWf_dpr
+
+
+## Whitefly after treatment
+SummedWF_dpr<- ddply(dpr_data2022, c("Product","TRT","Block", "DPR_Label"), summarise,
+                 WfNym.Sum = sum(Total_WFnymph_per_leaf, na.rm=TRUE),
+                 WfAd.Sum = sum(WF_adult_per_leaf, na.rm=TRUE))
+
+
+SummedWF_dpr
+
+SummedWF_dpr.Avg<- ddply(SummedWF_dpr, c("Product","TRT", "DPR_Label"), summarise,
+                     N = sum(!is.na(WfNym.Sum)),
+                     WfNym.SumAvg = mean(WfNym.Sum, na.rm=TRUE),
+                     WfNym.SumSD   = sd(WfNym.Sum, na.rm=TRUE),
+                     WfNym.SumSE   = WfNym.SumSD / sqrt(N),
+                     WfAd.SumAvg = mean(WfAd.Sum, na.rm=TRUE),
+                     WfAd.SumSD   = sd(WfAd.Sum, na.rm=TRUE),
+                     WfAd.SumSE   = WfAd.SumSD / sqrt(N) ) 
+
+SummedWF_dpr.Avg
+```
+
+```{r}
+#WF nymphs
+
+WFNymChart_dpr_2022 <- summaryWf_dpr %>%
+  mutate (DAT = fct_relevel(DAT, "20-DAT2","14-DAT2", "7-DAT2","2-DAT2","13-DAT1","7-DAT1","2-DAT1")) %>%
+  ggplot(aes(fill=DAT,y=WfNym.Mean, x=DPR_Label))+
+  geom_bar(position="stack",stat="identity")+geom_bar(position="stack",stat="identity")+ 
   geom_bar(position="stack",stat="identity",color="#333333",size=.1)+
   scale_fill_brewer(palette = "Spectral")+
   theme_classic()+
-  theme(axis.text.x=element_text(angle=50, hjust=0.99))+
+  theme(axis.text.x=element_text(angle=60, hjust=0.99))+
   theme(text=element_text(size=15))+labs(fill = "DAT")+
   theme(axis.text.x=element_text(color="#000000", size=12),
         axis.text.y=element_text(color="#000000", size=12))+
   ylab("Avg. whitefly nymphs (per leaf)")+
-  xlab("")
+  xlab("") 
 
-WFAdChart_dpr 
+WFNymChart_dpr_2022 
+ggsave(file="WFNymChart_dpr_2022.jpg", width=8, height=6, dpi=600)
 ```
 
+```{r}
+# For DPR 
+# whitefly adult
+ 
+WFAdChart_dpr_2022 <- summaryWf_dpr %>%
+  mutate (DAT = fct_relevel(DAT, "20-DAT2","14-DAT2", "7-DAT2","2-DAT2","13-DAT1","7-DAT1","2-DAT1")) %>%
+  ggplot(aes(fill=DAT,y=WfAd.Mean, x=DPR_Label))+
+  geom_bar(position="stack",stat="identity")+ 
+  geom_bar(position="stack",stat="identity",color="#333333",size=.1)+
+  scale_fill_brewer(palette = "Spectral")+
+  theme_classic()+
+  theme(axis.text.x=element_text(angle=60, hjust=0.99))+
+  theme(text=element_text(size=15))+labs(fill = "DAT")+
+  theme(axis.text.x=element_text(color="#000000", size=12),
+        axis.text.y=element_text(color="#000000", size=12))+
+  ylab("Avg. whitefly adults (per leaf)")+
+  xlab("") 
+
+WFAdChart_dpr_2022 
+ggsave(file="WFAdChart_dpr_2022.jpg", width=8, height=6, dpi=600)
+```
+
+```{r}
+#summary aphid
+summary_T_aphid_dpr<- ddply(dpr_data2022, c("DAT","Product","TRT", "DPR_Label"), summarise,
+                  N4    = sum(!is.na(Total_Aphid_pre_leaf)),
+                  TAphid.Mean = mean(Total_Aphid_pre_leaf, na.rm=TRUE),
+                  TAphidSD   = sd(Total_Aphid_pre_leaf, na.rm=TRUE),
+                  TAphidSE   = TAphidSD / sqrt(N4),
+                  TAphid.Sum = sum(Total_Aphid_pre_leaf, na.rm=TRUE))
+                  
+                  
+summary_T_aphid_dpr
+
+
+## Total Aphid after treatment
+SummedTAphid_dpr<- ddply(dpr_data2022, c("Product","TRT","Block", "DPR_Label"), summarise,
+                 TAphid.Sum = sum(Total_Aphid_pre_leaf, na.rm=TRUE)
+                 )
+
+
+SummedTAphid_dpr
+
+#Adult summary without blocks
+
+SummedTAphid_dpr.Avg<- ddply(SummedTAphid_dpr, c("Product","TRT", "DPR_Label"), summarise,
+                     N = sum(!is.na(TAphid.Sum)),
+                     TAphid.SumAvg = mean(TAphid.Sum, na.rm=TRUE),
+                     TAphid.SumSD   = sd(TAphid.Sum, na.rm=TRUE),
+                     TAphid.SumSE   =  TAphid.SumSD / sqrt(N)
+                     ) 
+
+SummedTAphid_dpr.Avg
+```
 
 ```{r, include=TRUE,echo=TRUE,warning=FALSE, fig.dim = c(8, 6)}
 # For DPR 
-# Selecting Sefina, pqz, sivanto, assail, untreated 
 
-TAphidhart_dpr <- summary_T_aphid %>%
-  select ("DAT", "Product", "TAphid.Mean", "TRT")%>%
-  filter (TRT %in% c("1", "2", "4", "6", "11", "12", "14", "16", "17"))%>%
-  mutate (DAT = fct_relevel(DAT, "20-DAT-2","14-DAT-2", "7-DAT-2","2-DAT-2","13","7","2")) %>%
-  ggplot(aes(fill=DAT,y=TAphid.Mean, x=Product))+
+TAphidhart_dpr_2022 <- summary_T_aphid_dpr %>%
+  mutate (DAT = fct_relevel(DAT, "20-DAT2","14-DAT2", "7-DAT2","2-DAT2","13-DAT1","7-DAT1","2-DAT1")) %>%
+  ggplot(aes(fill=DAT,y=TAphid.Mean, x=DPR_Label))+
   geom_bar(position="stack",stat="identity",color="#333333",size=.1)+
     scale_fill_brewer(palette = "Spectral")+
   theme_classic()+
-  theme(axis.text.x=element_text(angle=50, hjust=0.99))+
+  theme(axis.text.x=element_text(angle=60, hjust=0.99))+
   theme(text=element_text(size=15))+labs(fill = "DAT")+
   theme(axis.text.x=element_text(color="#000000", size=12),
         axis.text.y=element_text(color="#000000", size=12))+
   ylab("Avg. Aphids (per leaf)")+
   xlab("")
-TAphidhart_dpr
+
+TAphidhart_dpr_2022
+ggsave(file="TAphidhart_dpr_2022.jpg", width=10, height=6, dpi=600)
 ```
 
 
