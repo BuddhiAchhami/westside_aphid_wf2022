@@ -17,7 +17,7 @@ getwd()
 library(tidyverse)
 library(readxl)
 
-WSAphWf2022.1 <-read_excel ("C:/Users/bachhami/Box Sync/UCDavis_Buddhi/spraydroplet_analysis/droplet_size_2/westside_aphid_wf2022/West_Side_Aphid_Wf_data2022.forR.xlsx") 
+WSAphWf2022.1 <-read_excel ("C:/Users/bachhami/Box Sync/UCDavis_Buddhi/AphidWhiteflyData/westside_aphid_wf2022/West_Side_Aphid_Wf_data2022.forR.xlsx") 
 
 library(dplyr)
 WSAphWf2022.1 <- mutate(WSAphWf2022.1, Date = as.Date(Date, origin = "15/8/2022"))
@@ -30,6 +30,7 @@ WSAphWf2022 <- WSAphWf2022.1 %>%
 
 head (WSAphWf2022)
 ```
+
 ```{r}
 WSAphWf2022$DAT<-as.factor(WSAphWf2022$DAT) 
 WSAphWf2022$TRT<-as.factor(WSAphWf2022$TRT)
@@ -59,7 +60,7 @@ tail (WSAphWf2022.2)
 ```{r}
 library(plyr)
 #summary whitefly
-summaryWf<- ddply(WSAphWf2022.2, c("DAT","Product","TRT"), summarise,
+summaryWf<- ddply(WSAphWf2022.2, c("DAT","Product","TRT", "App"), summarise,
                   N2    = sum(!is.na(Total_WFnymph_per_leaf)),
                   WfNym.Mean = mean(Total_WFnymph_per_leaf, na.rm=TRUE),
                   WfNymSD   = sd(Total_WFnymph_per_leaf, na.rm=TRUE),
@@ -179,7 +180,7 @@ dpr_data2022
 
 ```{r}
 #summary whitefly
-summaryWf_dpr<- ddply(dpr_data2022, c("DAT","Product","TRT", "DPR_Label"), summarise,
+summaryWf_dpr<- ddply(dpr_data2022, c("DAT","Product","TRT", "DPR_Label", "App"), summarise,
                   N2    = sum(!is.na(Total_WFnymph_per_leaf)),
                   WfNym.Mean = mean(Total_WFnymph_per_leaf, na.rm=TRUE),
                   WfNymSD   = sd(Total_WFnymph_per_leaf, na.rm=TRUE),
@@ -260,7 +261,7 @@ ggsave(file="WFAdChart_dpr_2022.jpg", width=8, height=6, dpi=600)
 
 ```{r}
 #summary aphid
-summary_T_aphid_dpr<- ddply(dpr_data2022, c("DAT","Product","TRT", "DPR_Label"), summarise,
+summary_T_aphid_dpr<- ddply(dpr_data2022, c("DAT","Product","TRT", "DPR_Label", "App"), summarise,
                   N4    = sum(!is.na(Total_Aphid_pre_leaf)),
                   TAphid.Mean = mean(Total_Aphid_pre_leaf, na.rm=TRUE),
                   TAphidSD   = sd(Total_Aphid_pre_leaf, na.rm=TRUE),
@@ -272,7 +273,7 @@ summary_T_aphid_dpr
 
 
 ## Total Aphid after treatment
-SummedTAphid_dpr<- ddply(dpr_data2022, c("Product","TRT","Block", "DPR_Label"), summarise,
+SummedTAphid_dpr<- ddply(dpr_data2022, c("Product","TRT","Block", "DPR_Label", "App"), summarise,
                  TAphid.Sum = sum(Total_Aphid_pre_leaf, na.rm=TRUE)
                  )
 
@@ -291,7 +292,7 @@ SummedTAphid_dpr.Avg<- ddply(SummedTAphid_dpr, c("Product","TRT", "DPR_Label"), 
 SummedTAphid_dpr.Avg
 ```
 
-```{r, include=TRUE,echo=TRUE,warning=FALSE, fig.dim = c(8, 6)}
+```{r, include=TRUE,echo=TRUE,warning=FALSE}
 # For DPR 
 
 TAphidhart_dpr_2022 <- summary_T_aphid_dpr %>%
@@ -311,4 +312,112 @@ TAphidhart_dpr_2022
 ggsave(file="TAphidhart_dpr_2022.jpg", width=10, height=6, dpi=600)
 ```
 
+```{r}
+
+##Total aphid by product name for OSU
+TAphidhart_dpr_2022_osu <- summary_T_aphid_dpr %>%
+  mutate (DAT = fct_relevel(DAT, "20-DAT2","14-DAT2", "7-DAT2","2-DAT2","13-DAT1","7-DAT1","2-DAT1")) %>%
+  ggplot(aes(fill=DAT,y=TAphid.Mean, x=Product))+
+  geom_bar(position="stack",stat="identity",color="#333333",size=.1)+
+    scale_fill_brewer(palette = "Spectral")+
+  theme_classic()+
+  theme(axis.text.x=element_text(angle=60, hjust=0.99))+
+  theme(text=element_text(size=18))+labs(fill = "DAT")+
+  theme(axis.text.x=element_text(color="#000000", size=16),
+        axis.text.y=element_text(color="#000000", size=16))+
+  ylab("Avg. Aphids (per leaf)")+
+  xlab("")
+
+TAphidhart_dpr_2022_osu
+ggsave(file="TAphidhart_dpr_2022_osu.jpg", width=10, height=6, dpi=600)
+
+```
+
+```{r}
+#whitefly nymphs for Osu
+WFNymChart_dpr_2022_osu <- summaryWf_dpr %>%
+  mutate (DAT = fct_relevel(DAT, "20-DAT2","14-DAT2", "7-DAT2","2-DAT2","13-DAT1","7-DAT1","2-DAT1")) %>%
+  ggplot(aes(fill=DAT,y=WfNym.Mean, x=Product))+
+  geom_bar(position="stack",stat="identity")+geom_bar(position="stack",stat="identity")+ 
+  geom_bar(position="stack",stat="identity",color="#333333",size=.1)+
+  scale_fill_brewer(palette = "Spectral")+
+  theme_classic()+
+  theme(axis.text.x=element_text(angle=60, hjust=0.99))+
+  theme(text=element_text(size=18))+labs(fill = "DAT")+
+  theme(axis.text.x=element_text(color="#000000", size=16),
+        axis.text.y=element_text(color="#000000", size=16))+
+  ylab("Avg. whitefly nymphs (per leaf)")+
+  xlab("") 
+
+WFNymChart_dpr_2022_osu 
+ggsave(file="WFNymChart_dpr_2022_osu.jpg", width=10, height=8, dpi=600)
+```
+
+```{r}
+WFNymChart_dpr_2022_osu_1 <- summaryWf_dpr %>%
+  filter (App == "App1")%>%
+  mutate (DAT = fct_relevel(DAT, "13-DAT1","7-DAT1","2-DAT1")) %>%
+  ggplot(aes(fill=DAT,y=WfNym.Mean, x=Product))+
+  geom_bar(position="stack",stat="identity")+geom_bar(position="stack",stat="identity")+ 
+  geom_bar(position="stack",stat="identity",color="#333333",size=.1)+
+  scale_fill_brewer(palette = "Spectral")+
+  theme_classic()+
+  theme(axis.text.x=element_text(angle=60, hjust=0.99))+
+  theme(text=element_text(size=18))+labs(fill = "DAT")+
+  theme(axis.text.x=element_text(color="#000000", size=16),
+        axis.text.y=element_text(color="#000000", size=16))+
+  ylab("Whitefly nymphs (per leaf)")+
+  xlab("") 
+
+WFNymChart_dpr_2022_osu.1 
+ggsave(file="WFNymChart_dpr_2022_osu_1.jpg", width=10, height=8, dpi=600)
+```
+
+```{r}
+##Total aphid by product name for OSU
+TAphidhart_dpr_2022_osu.1 <- summary_T_aphid_dpr %>%
+  filter (App == "App1")%>%
+  mutate (DAT = fct_relevel(DAT, "13-DAT1","7-DAT1","2-DAT1")) %>%
+  ggplot(aes(fill=DAT,y=TAphid.Mean, x=Product))+
+  geom_bar(position="stack",stat="identity",color="#333333",size=.1)+
+    scale_fill_brewer(palette = "Spectral")+
+  theme_classic()+
+  theme(axis.text.x=element_text(angle=60, hjust=0.99))+
+  theme(text=element_text(size=18))+labs(fill = "DAT")+
+  theme(axis.text.x=element_text(color="#000000", size=16),
+        axis.text.y=element_text(color="#000000", size=16))+
+  ylab("Avg. Aphids (per leaf)")+
+  xlab("")
+
+TAphidhart_dpr_2022_osu.1
+ggsave(file="TAphidhart_dpr_2022_osu.1.jpg", width=10, height=6, dpi=600)
+
+
+
+```
+
+```{r}
+##Total aphid by product name for OSU
+TAphidhart_dpr_2022_osu.2 <- summary_T_aphid_dpr %>%
+  filter (App == "App1")%>%
+  mutate (DAT = fct_relevel(DAT, "2-DAT1","7-DAT1","13-DAT1"))
+
+ggplot (TAphidhart_dpr_2022_osu.2, aes(y=TAphid.Mean, x=DAT,  color = Product)) +
+  geom_line(aes (group = Product))
+
+
+```
+
+```{r}
+WFNymChart_dpr_2022_osu.2 <- summaryWf_dpr %>%
+  filter (App == "App1")%>%
+  mutate (DAT = fct_relevel(DAT, "2-DAT1","7-DAT1","13-DAT1"))
+
+cbPalette <- c("#000000", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7", "#999999", "#E69F00", "#56B4E9")
+
+ggplot(WFNymChart_dpr_2022_osu.2, aes(fill=DAT,y=WfNym.Mean, x=DAT, color = Product))+
+  geom_line(aes (group = Product), size = 1.5)+
+  scale_colour_manual(values=cbPalette)
+
+```
 
