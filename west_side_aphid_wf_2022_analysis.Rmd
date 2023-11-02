@@ -17,7 +17,7 @@ getwd()
 library(tidyverse)
 library(readxl)
 
-WSAphWf2022.1 <-read_excel ("C:/Users/bachhami/Box Sync/UCDavis_Buddhi/AphidWhiteflyData/westside_aphid_wf2022/West_Side_Aphid_Wf_data2022.forR.xlsx") 
+WSAphWf2022.1 <-read_excel ("C:/Users/bachhami/Box Sync/UCDavis_Buddhi/AphidWhiteflyData/westside_aphid_wf2022/West_Side_Aphid_Wf_Data2022.forR.xlsx") 
 
 library(dplyr)
 WSAphWf2022.1 <- mutate(WSAphWf2022.1, Date = as.Date(Date, origin = "15/8/2022"))
@@ -52,10 +52,10 @@ WSAphWf2022.2<-WSAphWf2022 %>%
     DAT == '14-DAT-2' ~ '14-DAT2',
     DAT == '20-DAT-2' ~ '20-DAT2'))
 
-
 head (WSAphWf2022.2)
 tail (WSAphWf2022.2)
 ```
+
 
 ```{r}
 library(plyr)
@@ -369,7 +369,7 @@ WFNymChart_dpr_2022_osu_1 <- summaryWf_dpr %>%
   ylab("Whitefly nymphs (per leaf)")+
   xlab("") 
 
-WFNymChart_dpr_2022_osu.1 
+WFNymChart_dpr_2022_osu_1 
 ggsave(file="WFNymChart_dpr_2022_osu_1.jpg", width=10, height=8, dpi=600)
 ```
 
