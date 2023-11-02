@@ -51,9 +51,9 @@ summary1 <- function(df, group_var,group_var2,  mean_var){
   df %>%
     group_by({{group_var}}, {{group_var2}}) %>%
     summarize(
-      mean_status = mean({{mean_var}}, na.rm = TRUE),
-      sd_status = sd({{mean_var}}, na.rm = TRUE),
-      se_status = sd_status / sqrt(n()),
+      mean1 = mean({{mean_var}}, na.rm = TRUE),
+      SD = sd({{mean_var}}, na.rm = TRUE),
+      SE = SD / sqrt(n()),
       .groups = "drop"
     )
 }
@@ -80,7 +80,27 @@ WSAphWf2022.2<-WSAphWf2022 %>%
 
 head (WSAphWf2022.2)
 tail (WSAphWf2022.2)
+
 ```
+
+```{r}
+summary1 <- function(df, group_var,group_var2,  mean_var){
+  
+  df %>%
+    group_by({{group_var}}, {{group_var2}}) %>%
+    summarize(
+      mean1 = mean({{mean_var}}, na.rm = TRUE),
+      SD = sd({{mean_var}}, na.rm = TRUE),
+      SE = SD / sqrt(n()),
+      .groups = "drop"
+    )
+}
+
+print (summary_wfnymph <- summary1 (WSAphWf2022.2, DAT, Product,  Total_WFnymph_per_leaf))
+print (summary_wfnymph <- summary1 (WSAphWf2022.2, DAT, Product,  Aphid_mummies))
+```
+
+
 
 
 ```{r}
