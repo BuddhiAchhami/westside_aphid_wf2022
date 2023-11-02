@@ -31,12 +31,38 @@ WSAphWf2022 <- WSAphWf2022.1 %>%
 head (WSAphWf2022)
 ```
 
+
 ```{r}
 WSAphWf2022$DAT<-as.factor(WSAphWf2022$DAT) 
 WSAphWf2022$TRT<-as.factor(WSAphWf2022$TRT)
 WSAphWf2022$Product<-as.factor(WSAphWf2022$Product)
 WSAphWf2022$Block<-as.factor(WSAphWf2022$Block)
 ```
+
+
+```{r}
+colnames(WSAphWf2022)
+```
+
+
+```{r}
+summary1 <- function(df, group_var,group_var2,  mean_var){
+  
+  df %>%
+    group_by({{group_var}}, {{group_var2}}) %>%
+    summarize(
+      mean_status = mean({{mean_var}}, na.rm = TRUE),
+      sd_status = sd({{mean_var}}, na.rm = TRUE),
+      se_status = sd_status / sqrt(n()),
+      .groups = "drop"
+    )
+}
+
+print (summary_wfnymph <- summary1 (WSAphWf2022, DAT, Product,  Total_WFnymph_per_leaf))
+print (summary_wfnymph <- summary1 (WSAphWf2022, DAT, Product,  Aphid_mummies))
+```
+
+
 
 ```{r}
 library(dplyr)
@@ -441,11 +467,6 @@ WSAphWf2022.2 %>%
 
 
 ```
-```{r}
-#head (WSAphWf2022.2)
-#column_names <- names(WSAphWf2022.2)
-#print(column_names)
 
 
-```
 
