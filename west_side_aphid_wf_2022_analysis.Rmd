@@ -46,20 +46,21 @@ colnames(WSAphWf2022)
 
 
 ```{r}
-summary1 <- function(df, group_var,group_var2,  mean_var){
+summary1 <- function(df, group_var,group_var2,group_var3, mean_var){
   
   df %>%
-    group_by({{group_var}}, {{group_var2}}) %>%
+    group_by({{group_var}}, {{group_var2}}, {{group_var3}}) %>%
     summarize(
       mean1 = mean({{mean_var}}, na.rm = TRUE),
       SD = sd({{mean_var}}, na.rm = TRUE),
+      N = n(),
       SE = SD / sqrt(n()),
       .groups = "drop"
     )
 }
 
-print (summary_wfnymph <- summary1 (WSAphWf2022, DAT, Product,  Total_WFnymph_per_leaf))
-print (summary_wfnymph <- summary1 (WSAphWf2022, DAT, Product,  Aphid_mummies))
+print (summary_wfnymph <- summary1 (WSAphWf2022, DAT, Product,TRT,  Total_WFnymph_per_leaf))
+print (summary_wfnymph <- summary1 (WSAphWf2022, DAT, Product,TRT,  Aphid_mummies))
 ```
 
 
