@@ -421,3 +421,31 @@ ggplot(WFNymChart_dpr_2022_osu.2, aes(fill=DAT,y=WfNym.Mean, x=DAT, color = Prod
 
 ```
 
+
+```{r}
+library(dplyr)
+compound_mean <- function(df, group_var, mean_var){
+  
+  df %>%
+    group_by({{group_var}}) %>%
+    summarize(
+      mean_status = mean({{mean_var}}, na.rm = TRUE),
+      sd_status = sd({{mean_var}}, na.rm = TRUE),
+      se_status = sd_status / sqrt(n()),
+      .groups = "drop"
+    )
+}
+
+WSAphWf2022.2 %>%
+  compound_mean ( Product,  Total_WFnymph_per_leaf)
+
+
+```
+```{r}
+#head (WSAphWf2022.2)
+#column_names <- names(WSAphWf2022.2)
+#print(column_names)
+
+
+```
+
